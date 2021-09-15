@@ -1,5 +1,8 @@
  import {CreateTodo, CreateProject} from "./todos&projects"
 
+ let defaultProject = new CreateProject ("Default");
+ let listOfProjects = [defaultProject]  
+
  function addTodo(){
      document.getElementById("add-task").addEventListener("click", function(){
         document.getElementById("add-task").style="visibility:hidden";
@@ -37,9 +40,10 @@
     btn.addEventListener("click", function(){
        let project = new CreateProject (document.getElementById("pname").value);
        listOfProjects.push(project);
-       //console.log(listOfProjects)
-       document.getElementById("content").innerHTML = `<h1>${document.getElementById("pname").value}</h1>`;
+       console.log(listOfProjects)
+       //document.getElementById("content").innerHTML = `<h1>${document.getElementById("pname").value}</h1>`;
        let newProject = document.createElement("li");
+       newProject.addEventListener("click",loadProjectIntoDom)
        newProject.innerText = project.name
        document.getElementById("list-sidebar").appendChild(newProject);
 
@@ -70,49 +74,53 @@
 
  }
 
-function updateDOM(){
+function updateDOM(){//FUNCTION
 
    let table = document.getElementById("tasks");
-   let tr = document.createElement("tr");
-   let tdName = document.createElement("td");
-   tdName.innerText=defaultProject.todos[(defaultProject.todos.length-1)].title;
-   let tdDescribtion = document.createElement("td");
-   tdDescribtion.innerText=defaultProject.todos[(defaultProject.todos.length-1)].describtion;
-   let tdNotes = document.createElement("td");
-   tdNotes.innerText=defaultProject.todos[(defaultProject.todos.length-1)].notes;
-   let tdPriority = document.createElement("td");
-   tdPriority.innerText=defaultProject.todos[(defaultProject.todos.length-1)].priority;
-   let tdChecklist = document.createElement("td");
-   let inputCheckBox = document.createElement("input");   
-   inputCheckBox.type="checkbox";  
-   inputCheckBox.id="inputCheckBox";
-   tdChecklist.appendChild(inputCheckBox);
+   table.innerHTML=" <tr><th>Task</th><th>Describtion</th><th>Notes</th><th>Priority</th><th>Checklist</th><th>Due Date</th></tr>"
 
-   let tdDueDate = document.createElement("td");
-   tdDueDate.innerText=defaultProject.todos[(defaultProject.todos.length-1)].dueDate;
-   tr.appendChild(tdName);
-   tr.appendChild(tdDescribtion);
-   tr.appendChild(tdNotes);
-   tr.appendChild(tdPriority);
-   tr.appendChild(tdChecklist);
-   tr.appendChild(tdDueDate);
+   for (let i=0; i<defaultProject.todos.length; i++){
       
-   table.appendChild(tr);
+      let tr = document.createElement("tr");
+      let tdName = document.createElement("td");
+      tdName.innerText=defaultProject.todos[i].title;
+      let tdDescribtion = document.createElement("td");
+      tdDescribtion.innerText=defaultProject.todos[i].describtion;
+      let tdNotes = document.createElement("td");
+      tdNotes.innerText=defaultProject.todos[i].notes;
+      let tdPriority = document.createElement("td");
+      tdPriority.innerText=defaultProject.todos[i].priority;
+      let tdChecklist = document.createElement("td");
+      let inputCheckBox = document.createElement("input");   
+      inputCheckBox.type="checkbox";  
+      inputCheckBox.id="inputCheckBox";
+      tdChecklist.appendChild(inputCheckBox);
 
+      let tdDueDate = document.createElement("td");
+      tdDueDate.innerText=defaultProject.todos[i].dueDate;
+      tr.appendChild(tdName);
+      tr.appendChild(tdDescribtion);
+      tr.appendChild(tdNotes);
+      tr.appendChild(tdPriority);
+      tr.appendChild(tdChecklist);
+      tr.appendChild(tdDueDate);
+         
+     
+      table.appendChild(tr);
+   }
 }
 
 
 
  
- let defaultProject = new CreateProject ("Default");
- let listOfProjects = [defaultProject]  
+ 
 
 
- function loadProjectIntoDom(){ //This function loads the projects layout and propertie names
+ function loadProjectIntoDom(){ //This function loads the projects layout and property names
     let content = document.getElementById("content");
     content.innerHTML="";
     let h1 = document.createElement("h1");
-    h1.innerText="title";
+    h1.innerText="Default";
     let table = document.createElement("table");
     table.className= "taskTable";
     table.id ="tasks";
@@ -150,7 +158,7 @@ function updateDOM(){
     content.appendChild(div);
     addTodo();
     
-   defaultProject
+   updateDOM();
  }
 
  export {addTodo, defaultProject, addProjectToDom,  listOfProjects, loadProjectIntoDom}
