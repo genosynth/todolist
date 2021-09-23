@@ -3,30 +3,114 @@
  let defaultProject = new CreateProject ("Default");
  let listOfProjects = [defaultProject]  
 
- function addTodo(){
-     document.getElementById("add-task").addEventListener("click", function(){
-        document.getElementById("add-task").style="visibility:hidden";
-        document.getElementById("task-content").innerHTML = `<form style="padding: 2%" action="">
-        <label for="fname">Task name:</label>
-        <input type="text" id="tname" name="tname" placeholder="name">
-        <label for="lname">Describtion:</label>
-        <input type="text" id="describtion" name="describtion" placeholder="describtion">
-        <label for="lname">Notes:</label>
-        <input type="text" id="notes" name="notes" placeholder="notes">
-        <label for="lname">Priority:</label>
-        <input type="text" id="priority" name="priority" placeholder="priority">
-        <label for="lname">Due Date:</label>
-        <input type="text" id="duedate" name="duedate" placeholder="duedate">
-       
-      </form>`
 
-      let btn = document.createElement("button");
-      btn.innerText="Add Task";
-      btn.addEventListener("click", createObjectFromDom)
-      document.getElementById("task-content").appendChild(btn);
-      
-     })
- }
+ function updateDOM(nameOfProject){//FUNCTION TO GET THE PROPER PROJECT ON DOM
+
+   document.getElementById("header").innerText = nameOfProject;
+   let table = document.getElementById("tasks");
+   table.innerHTML=" <tr><th>Task</th><th>Describtion</th><th>Notes</th><th>Priority</th><th>Checklist</th><th>Due Date</th></tr>"
+   
+
+   for (let x=0; x<listOfProjects.length; x++){
+      if (listOfProjects[x].name==nameOfProject){
+
+         for (let i=0; i<listOfProjects[x].todos.length; i++){
+            
+            let tr = document.createElement("tr");
+            let tdName = document.createElement("td");
+            tdName.innerText=listOfProjects[x].todos[i].title;
+            let tdDescribtion = document.createElement("td");
+            tdDescribtion.innerText=listOfProjects[x].todos[i].describtion;
+            let tdNotes = document.createElement("td");
+            tdNotes.innerText=listOfProjects[x].todos[i].notes;
+            let tdPriority = document.createElement("td");
+            tdPriority.innerText=listOfProjects[x].todos[i].priority;
+            let tdChecklist = document.createElement("td");
+            let inputCheckBox = document.createElement("input");   
+            inputCheckBox.type="checkbox";  
+            inputCheckBox.id="inputCheckBox";
+            tdChecklist.appendChild(inputCheckBox);
+
+            let tdDueDate = document.createElement("td");
+            tdDueDate.innerText=listOfProjects[x].todos[i].dueDate;
+            tr.appendChild(tdName);
+            tr.appendChild(tdDescribtion);
+            tr.appendChild(tdNotes);
+            tr.appendChild(tdPriority);
+            tr.appendChild(tdChecklist);
+            tr.appendChild(tdDueDate);
+               
+         
+            table.appendChild(tr);
+         }
+      } //return  
+   } 
+   addTodo();
+   
+}
+
+function addTodo(){
+   document.getElementById("add-task").addEventListener("click", function(){
+      document.getElementById("add-task").style="visibility:hidden";
+      document.getElementById("task-content").innerHTML = `<form style="padding: 2%" action="">
+      <label for="fname">Task name:</label>
+      <input type="text" id="tname" name="tname" placeholder="name">
+      <label for="lname">Describtion:</label>
+      <input type="text" id="describtion" name="describtion" placeholder="describtion">
+      <label for="lname">Notes:</label>
+      <input type="text" id="notes" name="notes" placeholder="notes">
+      <label for="lname">Priority:</label>
+      <input type="text" id="priority" name="priority" placeholder="priority">
+      <label for="lname">Due Date:</label>
+      <input type="text" id="duedate" name="duedate" placeholder="duedate">
+     
+    </form>`
+
+    let btn = document.createElement("button");
+    btn.innerText="Add Task";
+    btn.addEventListener("click", createNewTask)
+    document.getElementById("task-content").appendChild(btn);
+    
+   })
+}
+
+function createNewTask(){
+   let nameOfProject = document.getElementById("header").innerText;
+   let name = document.getElementById("tname").value
+   let describtion = document.getElementById("describtion").value
+   let notes = document.getElementById("notes").value
+   let priority = document.getElementById("priority").value
+   let dueDate = document.getElementById("duedate").value
+   let todo1 = new CreateTodo(name,describtion,notes,priority,dueDate);
+
+   for (let x=0; x<listOfProjects.length; x++){
+      if (listOfProjects[x].name==nameOfProject){
+         listOfProjects[x].todos.push(todo1)
+      }
+   }
+         
+   
+   console.log(todo1)
+   
+   console.log(listOfProjects)
+   document.getElementById("task-content").innerHTML= "";
+   document.getElementById("add-task").style="visibility:visible";
+   updateDOM(nameOfProject);
+
+
+}
+
+
+
+
+//----------------------------------- CODE BELOW IS WORKINGS -----------------------------------------------------
+
+
+
+
+
+
+
 
  function addProjectToDom(){
     document.getElementById("newProject").addEventListener("click", function(){
@@ -43,9 +127,12 @@
        console.log(listOfProjects)
        //document.getElementById("content").innerHTML = `<h1>${document.getElementById("pname").value}</h1>`;
        let newProject = document.createElement("li");
-       newProject.addEventListener("click",loadProjectIntoDom)
+       newProject.id = (document.getElementById("pname").value)
+       let name = newProject.id;
+       newProject.addEventListener("click",loadProjectIntoDom(name))
        newProject.innerText = project.name
        document.getElementById("list-sidebar").appendChild(newProject);
+       document.getElementById(newProject.id).addEventListener("click", function(){updateDOM(name)})
 
 
 
@@ -55,72 +142,16 @@
     })
  }
 
- function createObjectFromDom(){
-
-    let name = document.getElementById("tname").value
-    let describtion = document.getElementById("describtion").value
-    let notes = document.getElementById("notes").value
-    let priority = document.getElementById("priority").value
-    let dueDate = document.getElementById("duedate").value
-    let todo1 = new CreateTodo(name,describtion,notes,priority,dueDate);
-    
-    console.log(todo1)
-    defaultProject.todos.push(todo1)
-    console.log(defaultProject)
-    document.getElementById("task-content").innerHTML= "";
-    document.getElementById("add-task").style="visibility:visible";
-    updateDOM();
-
-
- }
-
-function updateDOM(){//FUNCTION
-
-   let table = document.getElementById("tasks");
-   table.innerHTML=" <tr><th>Task</th><th>Describtion</th><th>Notes</th><th>Priority</th><th>Checklist</th><th>Due Date</th></tr>"
-
-   for (let i=0; i<defaultProject.todos.length; i++){
-      
-      let tr = document.createElement("tr");
-      let tdName = document.createElement("td");
-      tdName.innerText=defaultProject.todos[i].title;
-      let tdDescribtion = document.createElement("td");
-      tdDescribtion.innerText=defaultProject.todos[i].describtion;
-      let tdNotes = document.createElement("td");
-      tdNotes.innerText=defaultProject.todos[i].notes;
-      let tdPriority = document.createElement("td");
-      tdPriority.innerText=defaultProject.todos[i].priority;
-      let tdChecklist = document.createElement("td");
-      let inputCheckBox = document.createElement("input");   
-      inputCheckBox.type="checkbox";  
-      inputCheckBox.id="inputCheckBox";
-      tdChecklist.appendChild(inputCheckBox);
-
-      let tdDueDate = document.createElement("td");
-      tdDueDate.innerText=defaultProject.todos[i].dueDate;
-      tr.appendChild(tdName);
-      tr.appendChild(tdDescribtion);
-      tr.appendChild(tdNotes);
-      tr.appendChild(tdPriority);
-      tr.appendChild(tdChecklist);
-      tr.appendChild(tdDueDate);
-         
-     
-      table.appendChild(tr);
-   }
-}
 
 
 
- 
- 
 
-
- function loadProjectIntoDom(){ //This function loads the projects layout and property names
+ function loadProjectIntoDom(nameOfProject){ //This function loads the projects layout and property names
     let content = document.getElementById("content");
     content.innerHTML="";
     let h1 = document.createElement("h1");
-    h1.innerText="Default";
+    h1.id="header";
+    h1.innerText=nameOfProject; // IN THIS PART YOU GET THE HEADER OF THE PROJECT
     let table = document.createElement("table");
     table.className= "taskTable";
     table.id ="tasks";
@@ -158,7 +189,7 @@ function updateDOM(){//FUNCTION
     content.appendChild(div);
     addTodo();
     
-   updateDOM();
+   updateDOM(nameOfProject);
  }
 
- export {addTodo, defaultProject, addProjectToDom,  listOfProjects, loadProjectIntoDom}
+ export {updateDOM, addTodo, defaultProject, addProjectToDom,  listOfProjects, loadProjectIntoDom}
