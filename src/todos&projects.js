@@ -1,6 +1,6 @@
-function CreateTodo(title,describtion,notes, priority, dueDate, checklist=false) {
+function CreateTodo(title,describtion,notes, priority, dueDate, status=false) {
 
-	return{title, describtion, notes, priority, dueDate, checklist}
+	return{title, describtion, notes, priority, dueDate, status}
 
 
 }

@@ -8,7 +8,7 @@
 
    document.getElementById("header").innerText = nameOfProject;
    let table = document.getElementById("tasks");
-   table.innerHTML=" <tr><th>Task</th><th>Describtion</th><th>Notes</th><th>Priority</th><th>Checklist</th><th>Due Date</th></tr>"
+   table.innerHTML=" <tr><th>Task</th><th>Describtion</th><th>Notes</th><th>Priority</th><th>Status</th><th>Due Date</th></tr>"
    
 
    for (let x=0; x<listOfProjects.length; x++){
@@ -24,21 +24,129 @@
             let tdNotes = document.createElement("td");
             tdNotes.innerText=listOfProjects[x].todos[i].notes;
             let tdPriority = document.createElement("td");
+            tdPriority.id = `priority${i}`;
             tdPriority.innerText=listOfProjects[x].todos[i].priority;
-            let tdChecklist = document.createElement("td");
-            let inputCheckBox = document.createElement("input");   
-            inputCheckBox.type="checkbox";  
-            inputCheckBox.id="inputCheckBox";
-            tdChecklist.appendChild(inputCheckBox);
+            
+             
+            let editBtn = document.createElement("button")
+            editBtn.innerText="Edit";
+            editBtn.addEventListener("click", function(){
 
-            let tdDueDate = document.createElement("td");
+               editBtn.style.visibility ="hidden"
+               let newStatus = document.getElementById(`status${i}`);
+               newStatus.innerHTML = `<select id="selectStatus${i}">
+               <option value="Pending">Pending</option>
+               <option value="Done">Done</option>               
+               </select>`;
+              
+
+               let newPriority = document.getElementById(`priority${i}`);
+               newPriority.innerHTML =`<select id="selectPriority${i}">
+               <option value="High">High</option>
+               <option value="Medium">Medium</option> 
+               <option value="Low">Low</option>              
+               </select>`
+               
+
+               let newDate = document.getElementById(`date${i}`);
+               newDate.innerHTML =`<input type="date" id="newduedate${i}" name="duedate" placeholder="duedate">`
+               
+               
+               
+               
+              // editBtn.innerText = "Apply Changes";
+               let newButton = document.createElement("button");
+               newButton.innerText = "Apply Changes";
+               newButton.addEventListener("click", function(){
+                  let newStatus = document.getElementById(`selectStatus${i}`).value
+                  let newDueDate = document.getElementById(`newduedate${i}`).value
+                  let newPriorityValue = document.getElementById(`selectPriority${i}`).value
+                  //let valur = lostja.value;
+                  
+                  console.log(newStatus);
+                  if (newStatus == "Done"){
+                  listOfProjects[x].todos[i].status = true;
+                  }
+
+                  if (newStatus == "Pending"){
+                     listOfProjects[x].todos[i].status = false;
+
+                  }
+
+                  listOfProjects[x].todos[i].dueDate = newDueDate;
+                  listOfProjects[x].todos[i].priority = newPriorityValue;
+
+                  updateDOM(nameOfProject);
+               
+               })
+
+               tr.appendChild(newButton)
+            })
+
+
+                  
+            let deleteBtn = document.createElement("button");
+            deleteBtn.innerText="Delete";
+            deleteBtn.addEventListener("click", function(){
+               let answer = window.confirm("Are you sure you want to delete this task?");
+
+               if (answer){
+               listOfProjects[x].todos.splice(i, 1);
+               updateDOM(nameOfProject);
+               }
+            })
+
+            
+            let tdStatus = document.createElement("td");
+            tdStatus.id = `status${i}`
+            if (listOfProjects[x].todos[i].status==false){ 
+               tdStatus.innerText ="Pending";
+               
+            }
+
+            if (listOfProjects[x].todos[i].status==true){ 
+               tdStatus.innerText ="Done";
+
+            }
+
+
+            /* let statusBox = document.createElement("button"); 
+            if (listOfProjects[x].todos[i].status==false){ 
+               statusBox.innerText ="Pending";
+               statusBox.addEventListener("click", function(){
+                  listOfProjects[x].todos[i].status = true
+                  statusBox.innerText ="Done"
+               })
+            } 
+            if (listOfProjects[x].todos[i].status==true){ 
+               statusBox.innerText ="Done";
+               statusBox.addEventListener("click", function(){
+                  listOfProjects[x].todos[i].status = false
+                  statusBox.innerText ="Pending"
+               })
+            }        
+            
+            tdStatus.appendChild(statusBox);
+            */
+            let tdDueDate = document.createElement("td"); 
+            tdDueDate.id = `date${i}`          
+            
             tdDueDate.innerText=listOfProjects[x].todos[i].dueDate;
+
+           
+
+
+
+            // INSERT NEW BUTTON FOR REMOVE OR EDIT DATE HERE?
             tr.appendChild(tdName);
             tr.appendChild(tdDescribtion);
             tr.appendChild(tdNotes);
             tr.appendChild(tdPriority);
-            tr.appendChild(tdChecklist);
+            tr.appendChild(tdStatus);
             tr.appendChild(tdDueDate);
+            tr.appendChild(editBtn);
+            tr.appendChild(deleteBtn);
+            
                
          
             table.appendChild(tr);
@@ -60,9 +168,13 @@ function addTodo(){
       <label for="lname">Notes:</label>
       <input type="text" id="notes" name="notes" placeholder="notes">
       <label for="lname">Priority:</label>
-      <input type="text" id="priority" name="priority" placeholder="priority">
+      <select id="priority">
+               <option value="High">High</option>
+               <option value="Medium">Medium</option> 
+               <option value="Low">Low</option>              
+      </select>
       <label for="lname">Due Date:</label>
-      <input type="text" id="duedate" name="duedate" placeholder="duedate">
+      <input type="date" id="duedate" name="duedate" placeholder="duedate">
      
     </form>`
 
@@ -75,6 +187,7 @@ function addTodo(){
 }
 
 function createNewTask(){
+   
    let nameOfProject = document.getElementById("header").innerText;
    let name = document.getElementById("tname").value
    let describtion = document.getElementById("describtion").value
@@ -83,21 +196,23 @@ function createNewTask(){
    let dueDate = document.getElementById("duedate").value
    let todo1 = new CreateTodo(name,describtion,notes,priority,dueDate);
 
-   for (let x=0; x<listOfProjects.length; x++){
-      if (listOfProjects[x].name==nameOfProject){
-         listOfProjects[x].todos.push(todo1)
+   if (name!=""){
+
+      for (let x=0; x<listOfProjects.length; x++){
+         if (listOfProjects[x].name==nameOfProject){
+            listOfProjects[x].todos.push(todo1)
+         }
       }
-   }
-         
-   
-   console.log(todo1)
-   
-   console.log(listOfProjects)
-   document.getElementById("task-content").innerHTML= "";
-   document.getElementById("add-task").style="visibility:visible";
-   updateDOM(nameOfProject);
+            
+      
+      console.log(todo1)
+      
+      console.log(listOfProjects)
+      document.getElementById("task-content").innerHTML= "";
+      document.getElementById("add-task").style="visibility:visible";
+      updateDOM(nameOfProject);
 
-
+   } else alert("Name of task cannot be left blank")
 }
 
 

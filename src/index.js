@@ -2,8 +2,7 @@
  import {CreateProject} from "./todos&projects"
 
  
- //addTodo()
- //addProjectToDom()
+
  updateDOM("Default")
  addProjectToDom();
 
