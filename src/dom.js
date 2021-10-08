@@ -243,6 +243,7 @@ function createNewTask(){
        //document.getElementById("content").innerHTML = `<h1>${document.getElementById("pname").value}</h1>`;
        let newProject = document.createElement("li");
        newProject.id = (document.getElementById("pname").value)
+       newProject.className = "projects";
        let name = newProject.id;
        newProject.addEventListener("click",loadProjectIntoDom(name))
        newProject.innerText = project.name

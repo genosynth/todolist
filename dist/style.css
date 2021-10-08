@@ -1,3 +1,7 @@
+html {
+    background-color: black;
+}
+
 header {
 
     background-color: rgb(179, 0, 0);
@@ -79,3 +83,7 @@ span:hover {
     background-color: rgb(255, 56, 56);
 }
 
+.projects:hover {
+    color: rgb(255, 56, 56);
+
+}
