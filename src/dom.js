@@ -2,10 +2,17 @@
 
  let defaultProject = new CreateProject ("Default");
  let listOfProjects = [defaultProject]  
-
+ //window.localStorage.setItem("projects",JSON.stringify(listOfProjects))
+ if (JSON.parse(window.localStorage.getItem('projects'))){
+    
+   listOfProjects = JSON.parse(window.localStorage.getItem('projects'))
+   
+ }
 
  function updateDOM(nameOfProject){//FUNCTION TO GET THE PROPER PROJECT ON DOM
+   //deleteProject();
 
+   
    document.getElementById("header").innerText = nameOfProject;
    let table = document.getElementById("tasks");
    table.innerHTML=" <tr><th>Task</th><th>Describtion</th><th>Notes</th><th>Priority</th><th>Status</th><th>Due Date</th></tr>"
@@ -75,6 +82,7 @@
 
                   listOfProjects[x].todos[i].dueDate = newDueDate;
                   listOfProjects[x].todos[i].priority = newPriorityValue;
+                  window.localStorage.setItem('projects', JSON.stringify(listOfProjects));
 
                   updateDOM(nameOfProject);
                
@@ -85,17 +93,20 @@
 
 
                   
-            let deleteBtn = document.createElement("button");
-            deleteBtn.innerText="Delete";
-            deleteBtn.addEventListener("click", function(){
-               let answer = window.confirm("Are you sure you want to delete this task?");
+           let deleteBtn = document.createElement("button");
+          
+           deleteBtn.innerText="Delete";
+           deleteBtn.addEventListener("click", function(){
+            let answer = window.confirm("Are you sure you want to delete this task?");
 
-               if (answer){
-               listOfProjects[x].todos.splice(i, 1);
-               updateDOM(nameOfProject);
-               }
-            })
-
+            if (answer){
+            listOfProjects[x].todos.splice(i, 1);
+            localStorage.setItem("projects" ,JSON.stringify(listOfProjects))
+            updateDOM(nameOfProject);
+            }
+         })
+                    
+            
             
             let tdStatus = document.createElement("td");
             tdStatus.id = `status${i}`
@@ -109,25 +120,6 @@
 
             }
 
-
-            /* let statusBox = document.createElement("button"); 
-            if (listOfProjects[x].todos[i].status==false){ 
-               statusBox.innerText ="Pending";
-               statusBox.addEventListener("click", function(){
-                  listOfProjects[x].todos[i].status = true
-                  statusBox.innerText ="Done"
-               })
-            } 
-            if (listOfProjects[x].todos[i].status==true){ 
-               statusBox.innerText ="Done";
-               statusBox.addEventListener("click", function(){
-                  listOfProjects[x].todos[i].status = false
-                  statusBox.innerText ="Pending"
-               })
-            }        
-            
-            tdStatus.appendChild(statusBox);
-            */
             let tdDueDate = document.createElement("td"); 
             tdDueDate.id = `date${i}`          
             
@@ -144,17 +136,52 @@
             tr.appendChild(tdPriority);
             tr.appendChild(tdStatus);
             tr.appendChild(tdDueDate);
-            tr.appendChild(editBtn);
-            tr.appendChild(deleteBtn);
+            tr.appendChild(editBtn);            
+            tr.appendChild(deleteBtn); // this is for task delete not porject delete!!!!
             
+                       
                
          
             table.appendChild(tr);
+            
          }
-      } //return  
+       
+         
+       
+      } //return
+            
    } 
-   addTodo();
+
    
+   addTodo();
+
+   
+   
+  
+  let deleteProjectBtn = document.getElementById("delete-project")
+  let header = document.getElementById("header").innerText
+  
+//let new_element = deleteProjectBtn.cloneNode(true);
+//deleteProjectBtn.parentNode.replaceChild(new_element, deleteProjectBtn)
+
+  if (header!="Default" && nameOfProject!="Default"){ 
+     
+   //let new_element = deleteProjectBtn.cloneNode(true);
+  // deleteProjectBtn.parentNode.replaceChild(new_element, deleteProjectBtn)
+ 
+   deleteProjectBtn.addEventListener("click",()=>{ 
+      //console.log(deleteProjectBtn)
+      //return console.log(window.document.getElementById("header").innerText)
+     
+      deleteProject(document.getElementById("header").innerText);
+
+      
+     
+   }) 
+   
+ }
+  
+  
 }
 
 function addTodo(){
@@ -162,7 +189,7 @@ function addTodo(){
       document.getElementById("add-task").style="visibility:hidden";
       document.getElementById("task-content").innerHTML = `<form style="padding: 2%" action="">
       <label for="fname">Task name:</label>
-      <input type="text" id="tname" name="tname" placeholder="name">
+      <input type="text" id="tname" name="tname" placeholder="name" required>
       <label for="lname">Describtion:</label>
       <input type="text" id="describtion" name="describtion" placeholder="describtion">
       <label for="lname">Notes:</label>
@@ -204,6 +231,7 @@ function createNewTask(){
          }
       }
             
+      window.localStorage.setItem('projects', JSON.stringify(listOfProjects));
       
       console.log(todo1)
       
@@ -221,10 +249,27 @@ function createNewTask(){
 //----------------------------------- CODE BELOW IS WORKINGS -----------------------------------------------------
 
 
+function loadProjectsFromLocalStorage(){
+   if (listOfProjects.length>1){
+      for (let i=1; i<listOfProjects.length; i++){
+       let project = document.createElement("li");
+       project.id = (listOfProjects[i].name)
+       project.className = "projects";
+       let name = project.id;
 
 
-
-
+               
+       project.addEventListener("click",loadProjectIntoDom(name))
+       
+       project.innerText = name;
+      
+       
+       document.getElementById("list-sidebar").appendChild(project);
+       //if (document.getElementById("header").innerText="Default"){document.getElementById("delete-project").style.visibility="hidden"}
+       document.getElementById(project.id).addEventListener("click", function(){updateDOM(name)})
+      }
+   }
+}
 
 
  function addProjectToDom(){
@@ -232,13 +277,23 @@ function createNewTask(){
       document.getElementById("content").innerHTML = `<h1>New Project</h1>
      
       <label for="pname">Project Name:</label>
-      <input type="text" id="pname" name="pname" placeholder="Name">`;
+      <input type="text" id="pname" name="pname" placeholder="Name" required>`;
 
     let btn = document.createElement("button");
     btn.innerText="Add Project";
     btn.addEventListener("click", function(){
+       for (let i=0; i<listOfProjects.length; i++){
+         if  (document.getElementById("pname").value=="") {return window.alert("Project name cannot be left empty!")};
+         if (document.getElementById("pname").value == listOfProjects[i].name){            
+            window.alert("Project with same name already exists");
+            loadProjectIntoDom(listOfProjects[i].name);
+            return;
+         }
+          
+       }
        let project = new CreateProject (document.getElementById("pname").value);
        listOfProjects.push(project);
+       window.localStorage.setItem('projects', JSON.stringify(listOfProjects));
        console.log(listOfProjects)
        //document.getElementById("content").innerHTML = `<h1>${document.getElementById("pname").value}</h1>`;
        let newProject = document.createElement("li");
@@ -247,7 +302,9 @@ function createNewTask(){
        let name = newProject.id;
        newProject.addEventListener("click",loadProjectIntoDom(name))
        newProject.innerText = project.name
+           
        document.getElementById("list-sidebar").appendChild(newProject);
+       
        document.getElementById(newProject.id).addEventListener("click", function(){updateDOM(name)})
 
 
@@ -288,6 +345,7 @@ function createNewTask(){
     span.className="content-span";
     span.id="add-task";
     span.innerText="Add Task"
+    
     let div = document.createElement("div");
     div.id="task-content";
 
@@ -302,10 +360,48 @@ function createNewTask(){
     tr.appendChild(th6);
     
     content.appendChild(span);
+    
+      let deleteSpan = document.createElement("span");
+      deleteSpan.className="content-span";
+      deleteSpan.id="delete-project";
+      deleteSpan.innerText="Delete Project"
+      content.appendChild(deleteSpan);
+   
     content.appendChild(div);
     addTodo();
     
    updateDOM(nameOfProject);
  }
 
- export {updateDOM, addTodo, defaultProject, addProjectToDom,  listOfProjects, loadProjectIntoDom}
+ function deleteProject(projectToDelete){
+
+   if (projectToDelete=="Default"){return}
+   //console.log(listOfProjects)
+     let dummy = []
+      //let answer = window.confirm("Are you sure you want to delete this project?");
+              // if (!answer){return}
+               
+
+                 listOfProjects.filter((project)=>{
+                     if (project.name!==projectToDelete)dummy.push(project)
+                     
+                  })
+
+                 //listOfProjects = dummy;
+                  
+                  
+                  //console.log(dummy)
+                  window.localStorage.setItem('projects', JSON.stringify(dummy));
+                  location.reload();  
+                  return
+              
+               
+               
+     
+   //})
+
+               
+    
+ }
+
+ export {updateDOM, addTodo, defaultProject, addProjectToDom,  listOfProjects, loadProjectIntoDom, loadProjectsFromLocalStorage}
